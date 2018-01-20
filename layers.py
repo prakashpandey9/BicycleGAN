@@ -67,21 +67,6 @@ def deconv2d_layer(x, out_channel, filter_height, filter_width, stride_height, s
 # 	    res = tf.nn.relu(x + input)
 # 	    return res
 
-# def residual_block(input, num_filters, filter_size, is_training, name="res_block"):
-# 	with tf.variable_scope(name):
-# 		in_filter = input.get_shape()[-1]
-# 		out_filter = num_filters
-# 		orig_input = input
-# 		print num_filters
-# 		x = lrelu_layer(bn_layer(conv2d_layer(input, out_filter, filter_size, filter_size, 1, 1, name='res_convd1'), is_training=is_training, scope='ebn_1'))
-# 		x = lrelu_layer(bn_layer(conv2d_layer(x, out_filter, filter_size, filter_size, 1, 1, name='res_convd2'), is_training=is_training, scope='ebn_2'))
-# 		if in_filter != out_filter:
-# 			orig_input = tf.nn.avg_pool(orig_input, [1, 1, 1, 1], [1, 1, 1, 1], padding='VALID')
-# 			orig_input = tf.pad(orig_input, [[0, 0], [0, 0], [0, 0], [(out_filter-in_filter)//2, (out_filter-in_filter)//2]])
-# 		x += orig_input
-
-# 		return x
-
 def residual_block(input, num_filters, filter_size, is_training, name="res_block"):
 	with tf.variable_scope(name):
 		in_filter = input.get_shape()[-1]
