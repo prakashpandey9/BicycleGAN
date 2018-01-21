@@ -316,29 +316,29 @@ class BicycleGAN(object):
 			images = np.squeeze(images, axis=0)
 			scipy.misc.imsave(os.path.join(base_dir, 'linear_{}.jpg'.format(step)), images)
 	
-@property
-def model_dir(self):
-	return "{}_{}_{}_{}".format(self.model_name, self.dataset_name, self.batch_size, self.Z_dim)
+	@property
+	def model_dir(self):
+		return "{}_{}_{}_{}".format(self.model_name, self.dataset_name, self.batch_size, self.Z_dim)
 
-def save(self, checkpoint_dir, step):
-	checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir, self.model_name)
+	def save(self, checkpoint_dir, step):
+		checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir, self.model_name)
 
-	if not os.path.exists(checkpoint_dir):
-		os.makedirs(checkpoint_dir)
-	self.saver.save(self.sess,os.path.join(checkpoint_dir, self.model_name+'.model'), global_step=step)
+		if not os.path.exists(checkpoint_dir):
+			os.makedirs(checkpoint_dir)
+		self.saver.save(self.sess,os.path.join(checkpoint_dir, self.model_name+'.model'), global_step=step)
 
-def load(self, checkpoint_dir):
-	import re
-	print(" [*] Reading checkpoints...")
-	checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir, self.model_name)
+	def load(self, checkpoint_dir):
+		import re
+		print(" [*] Reading checkpoints...")
+		checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir, self.model_name)
 
-	ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
-	if ckpt and ckpt.model_checkpoint_path:
-		ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
-		self.saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
-		counter = int(next(re.finditer("(\d+)(?!.*\d)",ckpt_name)).group(0))
-		print(" [*] Success to read {}".format(ckpt_name))
-		return True, counter
-	else:
-		print(" [*] Failed to find a checkpoint")
-		return False, 0
+		ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
+		if ckpt and ckpt.model_checkpoint_path:
+			ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
+			self.saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
+			counter = int(next(re.finditer("(\d+)(?!.*\d)",ckpt_name)).group(0))
+			print(" [*] Success to read {}".format(ckpt_name))
+			return True, counter
+		else:
+			print(" [*] Failed to find a checkpoint")
+			return False, 0
