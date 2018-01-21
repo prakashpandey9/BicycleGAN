@@ -43,13 +43,13 @@ def conv2d_layer(x, num_filters, filter_height, filter_width, stride_height, str
 def deconv2d_layer(x, out_channel, filter_height, filter_width, stride_height, stride_width, stddev=0.2, name="deconv2d"):
 	with tf.variable_scope(name):
 		in_channel = x.get_shape()[-1]
-		out_shape = [x.get_shape()[0], x.get_shape()[1]*stride_height, x.get_shape()[2]*stride_width, out_channel]
+		out_shape = [int(x.get_shape()[0]), int(x.get_shape()[1]*stride_height), int(x.get_shape()[2]*stride_width), out_channel]
 		#out_shape = tf.convert_to_tensor(out_shape)
 		w = tf.get_variable("weight", [filter_height, filter_width, out_channel, x.get_shape()[-1]], initializer=tf.random_normal_initializer(stddev=stddev))
 		s = [1, stride_height, stride_width, 1]
 		deconv = tf.nn.conv2d_transpose(x, w, out_shape, s, padding='SAME')
-		biases = tf.get_variable('bias', out_shape, initializer=tf.constant_initializer(0.0))
-		deconv = tf.reshape(tf.nn.bias_add(deconv, biases), deconv.get_shape)
+		biases = tf.get_variable('bias', out_channel, initializer=tf.constant_initializer(0.0))
+		deconv = tf.reshape(tf.nn.bias_add(deconv, biases), deconv.get_shape())
 
 		return deconv
 
