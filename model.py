@@ -51,8 +51,8 @@ class BicycleGAN(object):
 			self.num_batches = len(self.train_A) // self.batch_size
 
 
-	def Discriminator(self, x, is_training=True, reuse=False):
-		with tf.variable_scope("Discriminator", reuse=reuse):
+	def Discriminator(self, x, is_training=True, reuse=True):
+		with tf.variable_scope("Discriminator", reuse=tf.AUTO_REUSE):
 			x = lrelu_layer(conv2d_layer(x, 64, 4, 4, 2, 2, name='d_conv1'))
 			x = lrelu_layer(bn_layer(conv2d_layer(x, 128, 4, 4, 2, 2, name='d_conv2'), is_training=is_training, scope='d_bn2'))
 			x = lrelu_layer(bn_layer(conv2d_layer(x, 256, 4, 4, 2, 2, name='d_conv3'), is_training=is_training, scope='d_bn3'))
@@ -66,8 +66,8 @@ class BicycleGAN(object):
 
 			return x # not returning logit and net
 
-	def Generator(self, x, z, is_training=True, reuse=False):
-		with tf.variable_scope("Generator", reuse=reuse):
+	def Generator(self, x, z, is_training=True, reuse=True):
+		with tf.variable_scope("Generator", reuse=tf.AUTO_REUSE):
 			conv_layer = []
 			z = tf.reshape(z, [self.batch_size, 1, 1, self.Z_dim])
 			z = tf.tile(z, [1, self.image_size, self.image_size, 1])
@@ -108,8 +108,8 @@ class BicycleGAN(object):
 
 			return x
 
-	def Encoder(self, x, is_training=True, reuse=False):
-		with tf.variable_scope("Encoder", reuse=reuse):
+	def Encoder(self, x, is_training=True, reuse=True):
+		with tf.variable_scope("Encoder", reuse=tf.AUTO_REUSE):
 			x = lrelu_layer(conv2d_layer(x, 64, 4, 4, 2, 2, name='e_conv1'))
 
 			x = residual_block(x, 128, 3, is_training=is_training, name='res_1')
@@ -173,7 +173,7 @@ class BicycleGAN(object):
 
 		self.loss_vae_GE = tf.reduce_mean(tf.abs(self.image_B - self.desired_gen_img))
 
-		self.loss_gan_D = (tf.reduce_mean(tf.squared_difference(self.P_real, 0.9)) + tf.reduce_mean(tf.square(P_fake)))
+		self.loss_gan_D = (tf.reduce_mean(tf.squared_difference(self.P_real, 0.9)) + tf.reduce_mean(tf.square(self.P_fake)))
 
 		self.loss_gan_G = tf.reduce_mean(tf.squared_difference(self.P_fake, 0.9))
 
@@ -197,13 +197,13 @@ class BicycleGAN(object):
 			self.E_solver = opt.minimize(self.loss_E, var_list = self.enc_var)
 
 		""" Testing """
-		self.fake_images = self.generator(self.image_A, self.z, is_training=False, reuse=True)
+		self.fake_images = self.Generator(self.image_A, self.z, is_training=False, reuse=True)
 
 		""" Summary """
 
-		self.d_loss_sum = tf.summary.scalar("d_loss", self.d_loss) # check these all
-		self.g_loss_sum = tf.summary.scalar("g_loss", self.g_loss)
-		self.e_loss_sum = tf.summary.scalar("e_loss", self.e_loss)
+		self.d_loss_sum = tf.summary.scalar("d_loss", self.loss_D) # check these all
+		self.g_loss_sum = tf.summary.scalar("g_loss", self.loss_G)
+		self.e_loss_sum = tf.summary.scalar("e_loss", self.loss_E)
 
         # final summary operations
   		# self.g_sum = tf.summary.merge([d_loss_fake_sum, g_loss_sum])
