@@ -8,6 +8,7 @@ import numpy as np
 import scipy.misc
 from layers import *
 #from tensorflow.contrib import layers
+from folder import check_folder
 from load_data import load_images, save_images, imsave
 
 
