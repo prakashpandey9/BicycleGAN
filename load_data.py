@@ -46,3 +46,6 @@ def save_images(images, size, image_path):
 def imsave(images, size, path):
 	image = np.squeeze(merge(images, size))
 	return scipy.misc.imsave(path, image)
+
+def inverse_transform(images):
+	return (images+1.)/2.
