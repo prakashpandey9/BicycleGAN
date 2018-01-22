@@ -250,11 +250,11 @@ class BicycleGAN(object):
 				batch_z = np.random.normal(size=(self.batch_size, self.Z_dim))
 
 
-				_, summary_str_d, D_loss_curr = self.sess.run([self.D_solver, self.d_loss_sum, self.loss_D], feed_dict={self.input_img: batch_imagesA, self.true_img: batch_imagesB, self.z: batch_z})
+				_, summary_str_d, D_loss_curr = self.sess.run([self.D_solver, self.d_loss_sum, self.loss_D], feed_dict={self.image_A: batch_imagesA, self.image_B: batch_imagesB, self.z: batch_z})
 				self.writer.add_summary(summary_str_d, counter)
-				_, summary_str_d, G_loss_curr = self.sess.run([self.G_solver, self.g_loss_sum, self.loss_G], feed_dict={self.input_img: batch_imagesA, self.true_img: batch_imagesB, self.z: batch_z})
+				_, summary_str_g, G_loss_curr = self.sess.run([self.G_solver, self.g_loss_sum, self.loss_G], feed_dict={self.image_A: batch_imagesA, self.image_B: batch_imagesB, self.z: batch_z})
 				self.writer.add_summary(summary_str_g, counter)
-				_, summary_str_d, E_loss_curr = self.sess.run([self.E_solver, self.e_loss_sum, self.loss_E], feed_dict={self.input_img: batch_imagesA, self.true_img: batch_imagesB, self.z: batch_z})
+				_, summary_str_e, E_loss_curr = self.sess.run([self.E_solver, self.e_loss_sum, self.loss_E], feed_dict={self.image_A: batch_imagesA, self.image_B: batch_imagesB, self.z: batch_z})
 				self.writer.add_summary(summary_str_e, counter)
 
 				# display training status
@@ -263,7 +263,8 @@ class BicycleGAN(object):
 
 				# Saving training results for every 100 examples
 				if counter % 100 == 0:
-					samples = self.sess.run(self.fake_images, feed_dict={self.input_img: batch_imagesA, self.z: sample_z})
+					sample_z = np.random.normal(size=(self.batch_size, self.Z_dim))
+					samples = self.sess.run(self.fake_images, feed_dict={self.image_A: batch_imagesA, self.z: sample_z})
 					tot_num_samples = min(self.sample_num, self.batch_size)
 					manifold_h = int(np.floor(np.sqrt(tot_num_samples)))
 					manifold_w = int(np.floor(np.sqrt(tot_num_samples)))
@@ -294,12 +295,12 @@ class BicycleGAN(object):
 
 			for i in range(23):
 				z = np.random.normal(size=(1, self.Z_dim))
-				LR_desired_img = self.sess.run(self.LR_desired_img, feed_dict={self.input_img: input_img, self.z: z})
+				LR_desired_img = self.sess.run(self.LR_desired_img, feed_dict={self.image_A: input_img, self.z: z})
 				images_random.append(LR_desired_img)
 
 				z = np.zeros((1, self.Z_dim))
 				z[0][0] = (i / 23.0 - 0.5) * 2.0
-				LR_desired_img = self.sess.run(self.LR_desired_img, feed_dict={self.input_img: input_img, self.z: z})
+				LR_desired_img = self.sess.run(self.LR_desired_img, feed_dict={self.image_A: input_img, self.z: z})
 				images_linear.append(LR_desired_img)
 
 			image_rows = []
