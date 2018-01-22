@@ -8,6 +8,7 @@ import argparse
 import numpy as np
 import tensorflow as tf
 from model import BicycleGAN
+from folder import check_folder
 #from load_data import load_images
 
 
@@ -51,12 +52,6 @@ def check_args(args):
 	assert args.Z_dim >= 1, 'dimension of noise vector must be larger than or equal to one'
 
 	return args
-
-
-def check_folder(log_dir):
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
-	return log_dir
 
 """main"""
 def main():
