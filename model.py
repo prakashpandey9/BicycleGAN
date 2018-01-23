@@ -219,8 +219,8 @@ class BicycleGAN(object):
 		tf.global_variables_initializer().run()
 
 		# Input to graph from training data
-		self.z_sample = np.random.uniform(-1, 1, size=(self.batch_size, self.Z_dim))
-
+		self.z_sample = np.random.normal(size=(self.batch_size, self.Z_dim))
+		self.input_img1 = self.train_A[0:self.batch_size] # training results for a single image
 		# saving the model
 		self.saver = tf.train.Saver()
 
@@ -264,8 +264,7 @@ class BicycleGAN(object):
 
 				# Saving training results for every 100 examples
 				if counter % 100 == 0:
-					sample_z = np.random.normal(size=(self.batch_size, self.Z_dim))
-					samples = self.sess.run(self.fake_images, feed_dict={self.image_A: batch_imagesA, self.z: sample_z})
+					samples = self.sess.run(self.fake_images, feed_dict={self.image_A: batch_imagesA, self.z: self.z_sample})
 					tot_num_samples = min(self.sample_num, self.batch_size)
 					manifold_h = int(np.floor(np.sqrt(tot_num_samples)))
 					manifold_w = int(np.floor(np.sqrt(tot_num_samples)))
@@ -283,6 +282,7 @@ class BicycleGAN(object):
 
 	def test(self):
 		self.step = 0
+		base_dir = os.path.join('test_results')
 		for (img_A, img_B) in zip(self.test_A, self.test_B):
 			self.step += 1
 			input_img = np.expand_dims(img_A, axis=0)
@@ -294,29 +294,34 @@ class BicycleGAN(object):
 			images_linear.append(input_img)
 			images_linear.append(true_img)
 
-			for i in range(23):
-				z = np.random.normal(size=(1, self.Z_dim))
-				LR_desired_img = self.sess.run(self.LR_desired_img, feed_dict={self.image_A: input_img, self.z: z})
-				images_random.append(LR_desired_img)
+			z = np.random.normal(size=(self.batch_size, self.Z_dim))
+			LR_desired_img = self.sess.run(self.LR_desired_img, feed_dict={self.image_A: input_img, self.z=z})
+			image = LR_desired_img[0]
+			scipy.misc.imsave(os.path.join(base_dir, 'random_{}.jpg'.format(self.step)), image)
+			
+# 			for i in range(23):
+# 				z = np.random.normal(size=(1, self.Z_dim))
+# 				LR_desired_img = self.sess.run(self.LR_desired_img, feed_dict={self.image_A: input_img, self.z: z})
+# 				images_random.append(LR_desired_img)
 
-				z = np.zeros((1, self.Z_dim))
-				z[0][0] = (i / 23.0 - 0.5) * 2.0
-				LR_desired_img = self.sess.run(self.LR_desired_img, feed_dict={self.image_A: input_img, self.z: z})
-				images_linear.append(LR_desired_img)
+# 				z = np.zeros((1, self.Z_dim))
+# 				z[0][0] = (i / 23.0 - 0.5) * 2.0
+# 				LR_desired_img = self.sess.run(self.LR_desired_img, feed_dict={self.image_A: input_img, self.z: z})
+# 				images_linear.append(LR_desired_img)
 
-			image_rows = []
-			for i in range(5):
-				image_rows.append(np.concatenate(images_random[i*5:(i+1)*5], axis=2))
-			images = np.concatenate(image_rows, axis=1)
-			images = np.squeeze(images, axis=0)
-			scipy.misc.imsave(os.path.join(base_dir, 'random_{}.jpg'.format(step)), images)
+# 			image_rows = []
+# 			for i in range(5):
+# 				image_rows.append(np.concatenate(images_random[i*5:(i+1)*5], axis=2))
+# 			images = np.concatenate(image_rows, axis=1)
+# 			images = np.squeeze(images, axis=0)
+# 			scipy.misc.imsave(os.path.join(base_dir, 'random_{}.jpg'.format(step)), images)
 
-			image_rows = []
-			for i in range(5):
-				image_rows.append(np.concatenate(images_linear[i*5:(i+1)*5], axis=2))
-			images = np.concatenate(image_rows, axis=1)
-			images = np.squeeze(images, axis=0)
-			scipy.misc.imsave(os.path.join(base_dir, 'linear_{}.jpg'.format(step)), images)
+# 			image_rows = []
+# 			for i in range(5):
+# 				image_rows.append(np.concatenate(images_linear[i*5:(i+1)*5], axis=2))
+# 			images = np.concatenate(image_rows, axis=1)
+# 			images = np.squeeze(images, axis=0)
+# 			scipy.misc.imsave(os.path.join(base_dir, 'linear_{}.jpg'.format(step)), images)
 	
 	@property
 	def model_dir(self):
