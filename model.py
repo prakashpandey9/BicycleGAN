@@ -187,12 +187,12 @@ class BicycleGAN(object):
 		self.loss_E = self.loss_vae_gan_GE + self.reconst_coeff*self.loss_vae_GE + self.kl_coeff*self.loss_kl_E
 
 		# Optimizer
-		self.dis_var = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope="Discriminator") # ???????????????????
+		self.dis_var = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope="Discriminator")
 		self.gen_var= tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope="Generator")
 		self.enc_var = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope="Encoder")
 		opt = tf.train.AdamOptimizer(self.learning_rate, beta1=0.5)
 
-		with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)): # ????????????????????????
+		with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)):
 			self.D_solver = opt.minimize(self.loss_D, var_list = self.dis_var)
 			self.G_solver = opt.minimize(self.loss_G, var_list = self.gen_var)
 			self.E_solver = opt.minimize(self.loss_E, var_list = self.enc_var)
@@ -202,7 +202,7 @@ class BicycleGAN(object):
 
 		""" Summary """
 
-		self.d_loss_sum = tf.summary.scalar("d_loss", self.loss_D) # check these all
+		self.d_loss_sum = tf.summary.scalar("d_loss", self.loss_D)
 		self.g_loss_sum = tf.summary.scalar("g_loss", self.loss_G)
 		self.e_loss_sum = tf.summary.scalar("e_loss", self.loss_E)
 
