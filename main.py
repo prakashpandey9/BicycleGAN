@@ -43,13 +43,13 @@ def check_args(args):
 	check_folder(args.log_dir)
 
 	# --epoch
-	assert args.epoch >= 1, 'number of epochs must be larger than or equal to one'
+	assert args.epoch >= 1, 'Totral number of epochs must be greater than or equal to one'
 
 	# --batch_size
-	assert args.batch_size >= 1, 'batch size must be larger than or equal to one'
+	assert args.batch_size >= 1, 'Batch size must be greater than or equal to one'
 
 	# --z_dim
-	assert args.Z_dim >= 1, 'dimension of noise vector must be larger than or equal to one'
+	assert args.Z_dim >= 1, 'Size of noise vector must be greater than or equal to one'
 
 	return args
 
