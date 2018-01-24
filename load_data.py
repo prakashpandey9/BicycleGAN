@@ -40,15 +40,15 @@ def load_images():
 	
 	return train_A, train_B, test_A, test_B
 
-def save_images(images, size, image_path):
-	return imsave(inverse_transform(images), size, image_path)
+def save_image(image, size, img_path):
+	return imsave(inverse_transform(image), size, img_path)
 
-def imsave(images, size, path):
-	image = np.squeeze(merge(images, size))
-	return scipy.misc.imsave(path, image)
+def imsave(image, img_size, img_path):
+	image = np.squeeze(merge(image, img_size))
+	return scipy.misc.imsave(img_path, image)
 
-def inverse_transform(images):
-	return (images+1.)/2.
+def inverse_transform(image):
+	return (image+1.)/2.
 
 def merge(images, size):
     h, w = images.shape[1], images.shape[2]
@@ -68,4 +68,4 @@ def merge(images, size):
             img[j * h:j * h + h, i * w:i * w + w] = image[:,:,0]
         return img
     else:
-	raise ValueError('in merge(images,size) images parameter ''must have dimensions: HxW or HxWx3 or HxWx4')
+	raise ValueError('In merge(images,size) images parameter ''must have dimensions: HxW or HxWx3 or HxWx4')
