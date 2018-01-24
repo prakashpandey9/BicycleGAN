@@ -15,7 +15,7 @@ from load_data import load_images, save_images, imsave
 class BicycleGAN(object):
 	model_name = "BicycleGAN"
 
-	def __init__(self, sess, epoch, batch_size, Z_dim, image_size, dataset_name, checkpoint_dir, result_dir, log_dir): # exact
+	def __init__(self, sess, epoch, batch_size, Z_dim, image_size, dataset_name, checkpoint_dir, result_dir, log_dir):
 		self.sess = sess
 		self.dataset_name = dataset_name
 		self.checkpoint_dir = checkpoint_dir
@@ -34,8 +34,6 @@ class BicycleGAN(object):
 
 			self.Z_dim = Z_dim
 
-			#self.SUPERVISED = SUPERVISED
-
 			#train
 			self.learning_rate = 0.0002
 			self.beta1 = 0.5
@@ -44,7 +42,7 @@ class BicycleGAN(object):
 			self.kl_coeff = 0.01
 
 			#test
-			self.sample_num = 64 # ?????
+			self.sample_num = 64
 
 			# load data
 			self.train_A, self.train_B, self.test_A, self.test_B = load_images("/cityscapes")
@@ -65,7 +63,7 @@ class BicycleGAN(object):
 			x = linear_layer(x, 1, scope='d_fc8')
 			x = tf.nn.sigmoid(x)
 
-			return x # not returning logit and net
+			return x
 
 	def Generator(self, x, z, is_training=True, reuse=True):
 		with tf.variable_scope("Generator", reuse=tf.AUTO_REUSE):
@@ -275,7 +273,7 @@ class BicycleGAN(object):
 			# save model
 			self.save(self.checkpoint_dir, counter)
 			# show temporal results
-			# self.visualize_results(epoch)
+			# Write code for visualizing results
 
 		# save model for final step
 		self.save(self.checkpoint_dir, counter)
@@ -298,30 +296,6 @@ class BicycleGAN(object):
 			LR_desired_img = self.sess.run(self.LR_desired_img, feed_dict={self.image_A: input_img, self.z=z})
 			image = LR_desired_img[0]
 			scipy.misc.imsave(os.path.join(base_dir, 'random_{}.jpg'.format(self.step)), image)
-			
-# 			for i in range(23):
-# 				z = np.random.normal(size=(1, self.Z_dim))
-# 				LR_desired_img = self.sess.run(self.LR_desired_img, feed_dict={self.image_A: input_img, self.z: z})
-# 				images_random.append(LR_desired_img)
-
-# 				z = np.zeros((1, self.Z_dim))
-# 				z[0][0] = (i / 23.0 - 0.5) * 2.0
-# 				LR_desired_img = self.sess.run(self.LR_desired_img, feed_dict={self.image_A: input_img, self.z: z})
-# 				images_linear.append(LR_desired_img)
-
-# 			image_rows = []
-# 			for i in range(5):
-# 				image_rows.append(np.concatenate(images_random[i*5:(i+1)*5], axis=2))
-# 			images = np.concatenate(image_rows, axis=1)
-# 			images = np.squeeze(images, axis=0)
-# 			scipy.misc.imsave(os.path.join(base_dir, 'random_{}.jpg'.format(step)), images)
-
-# 			image_rows = []
-# 			for i in range(5):
-# 				image_rows.append(np.concatenate(images_linear[i*5:(i+1)*5], axis=2))
-# 			images = np.concatenate(image_rows, axis=1)
-# 			images = np.squeeze(images, axis=0)
-# 			scipy.misc.imsave(os.path.join(base_dir, 'linear_{}.jpg'.format(step)), images)
 	
 	@property
 	def model_dir(self):
