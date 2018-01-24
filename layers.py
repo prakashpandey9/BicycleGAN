@@ -31,7 +31,7 @@ def conv2d_layer(x, num_filters, filter_height, filter_width, stride_height, str
 		w = tf.get_variable('weight', [filter_height, filter_width, x.get_shape()[-1], num_filters], initializer=tf.truncated_normal_initializer(stddev=stddev))
 		s = [1, stride_height, stride_width, 1] # stride
 
-		if name == 'res_convd' or name == 'res_convd': # Probably this line is incorrect as names will change as per given in model.py
+		if name == 'res_convd' or name == 'res_convd':
 			conv = tf.nn.conv2d(x, w, s, padding='SAME')
 		else:
 			conv = tf.nn.conv2d(x, w, s, padding='SAME')
