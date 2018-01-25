@@ -19,7 +19,6 @@ def parse_args():
 	parser.add_argument('--reconst_coeff', type=float, default=10, help='Reconstruction Coefficient')
 	parser.add_argument('--latent_coeff', type=float, default=0.5, help='Latent Coefficient')
 	parser.add_argument('--kl_coeff', type=float, default=0.01, help='KL Coefficient')
-	parser.add_argument('--num_epochs', type=int, default=10, help='Total number of epochs')
 	parser.add_argument('--learning_rate', type=float, default=0.0001, help='Learning Rate')
 	parser.add_argument('--image_size', type=int, default=256, help='Image Size')
 	parser.add_argument('--batch_size', type=int, default=1, help='Size of the minibatch')
@@ -43,27 +42,27 @@ def check_args(args):
 	check_folder(args.log_dir)
 
 	# --epoch
-	assert args.epoch >= 1, 'Totral number of epochs must be greater than or equal to one'
+	assert args.epoch > 0, 'Totral number of epochs must be greater than zero'
 
 	# --batch_size
-	assert args.batch_size >= 1, 'Batch size must be greater than or equal to one'
+	assert args.batch_size > 0, 'Batch size must be greater than zero'
 
 	# --z_dim
-	assert args.Z_dim >= 1, 'Size of noise vector must be greater than or equal to one'
+	assert args.Z_dim > 0, 'Size of the noise vector must be greater than zero'
 
 	return args
 
-"""main"""
+"""main function"""
 def main():
 	# parse arguments
 	args = parse_args()
 	if args is None:
 	  exit()
 
-	# open session
+	# Open New Tensorflow Session
 	model = BicycleGAN
 	with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
-	    # declare instance for GAN
+	    # Declare instance for GAN
 
 	    gan = None
 	    if args.gan_type == model.model_name:
@@ -79,13 +78,13 @@ def main():
 	    if gan is None:
 	        raise Exception("[!] There is no option for " + args.gan_type)
 
-	    # build graph
+	    # Build Tesnorflow Graph
 	    gan.build_model()
 
 	    # show network architecture
 	    # show_all_variables()
 
-	    # launch the graph in a session
+	    # Launch the graph in a session
 	    gan.train()
 	    print(" [*] Training finished!")
 
