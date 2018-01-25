@@ -142,29 +142,34 @@ class BicycleGAN(object):
 		image_dims = [self.input_width, self.input_height, self.channels]
 
 		''' Graph input '''
-		# Input Image
+		# Input Image A
 		self.image_A = tf.placeholder(tf.float32, [self.batch_size] + image_dims, name='input_images')
 
-		# Output Image
+		# Output Image B
 		self.image_B = tf.placeholder(tf.float32, [self.batch_size] + image_dims, name='output_images')
 
-		# Noise
+		# Noise z
 		self.z = tf.placeholder(tf.float32, [self.batch_size, self.Z_dim], name='latent_vector')
 
-		''' Loss Function '''
-		# cVAE-GAN: B -> z -> B'
-		self.encoded_true_img, self.encoded_mu, self.encoded_log_sigma = self.Encoder(self.image_B) # Image B
+		''' Implementation of cVAE-GAN: B -> z -> B' '''
+		# Encoder is fed the correct output image B for encding it to the latent representation z to learn the distribution of z
+		# It outputs 3 things: Enocded value z as Q(z|B), mu of Q(z|B), log_sigma of Q(z|B)
+		self.encoded_true_img, self.encoded_mu, self.encoded_log_sigma = self.Encoder(self.image_B)
+		
+		# This encoded representation z along with the input image A is then fed to the Generator to output the image B'
 		self.desired_gen_img = self.Generator(self.image_A, self.encoded_true_img) # Image B_cap
 
-		# conditional Latent Regressor-GAN: z -> B' -> z'
-		self.LR_desired_img = self.Generator(self.image_A, self.z) # Image B_cap
-		self.reconst_z, self.reconst_mu, self.reconst_log_sigma = self.Encoder(self.LR_desired_img) # Generated z'
+		''' Implementation of cLR-GAN: z -> B' -> z' '''
+		# Now, z is sampled from a normal distribution N(z) which in addition to the input image A is fed to the Generator to output B'
+		self.LR_desired_img = self.Generator(self.image_A, self.z) # Generated Image B'
+		
+		# B' is then fed to the Encoder to output z' which we try to be close to N(z). 
+		self.reconst_z, self.reconst_mu, self.reconst_log_sigma = self.Encoder(self.LR_desired_img) # Encoded z'
 
 
-		self.P_real = self.Discriminator(self.image_B) # Probability of ground_truth output image (B) as real/fake
-		self.P_fake = self.Discriminator(self.LR_desired_img) # Probability of generated output images (B_cap) as real/fake
-		self.P_fake_encoded = self.Discriminator(self.desired_gen_img) # Probability of generated output images (B_cap)\
-																  # as real/fake
+		self.P_real = self.Discriminator(self.image_B) # Probability of ground_truth/real image (B) as real/fake
+		self.P_fake = self.Discriminator(self.LR_desired_img) # Probability of generated output images (G(A, N(z)) as real/fake
+		self.P_fake_encoded = self.Discriminator(self.desired_gen_img) # Probability of generated output images (G(A, Q(z|B)) as real/fake
 
 		self.loss_vae_gan_D = (tf.reduce_mean(tf.squared_difference(self.P_real, 0.9)) + tf.reduce_mean(tf.square(self.P_fake_encoded)))
 
@@ -178,9 +183,9 @@ class BicycleGAN(object):
 
 		self.loss_latent_GE = tf.reduce_mean(tf.abs(self.z - self.reconst_z))
 
-		self.loss_kl_E = 0.5 * tf.reduce_mean(-1 - 2 * self.encoded_log_sigma + self.encoded_mu ** 2 + tf.exp(2 * self.encoded_log_sigma))
+		self.loss_kl_E = 0.5 * tf.reduce_mean(-1 - self.encoded_log_sigma + self.encoded_mu ** 2 + tf.exp(self.encoded_log_sigma))
 
-		self.loss_D = self.loss_vae_gan_D + self.loss_gan_D
+		self.loss_D = self.loss_vae_gan_D + self.loss_gan_D - tf.reduce_mean(tf.squared_difference(self.P_real, 0.9)
 		self.loss_G = self.loss_vae_gan_GE + self.reconst_coeff*self.loss_vae_GE + self.loss_gan_G + self.latent_coeff*self.loss_latent_GE
 		self.loss_E = self.loss_vae_gan_GE + self.reconst_coeff*self.loss_vae_GE + self.kl_coeff*self.loss_kl_E
 
