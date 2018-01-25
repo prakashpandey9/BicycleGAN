@@ -65,7 +65,7 @@ def merge(images, size):
         for idx, image in enumerate(images):
             i = idx % size[1]
             j = idx // size[1]
-            img[j * h:j * h + h, i * w:i * w + w] = image[:,:,0]
+            img[j * h:j * h + h, i * w:i * w + w] = image[:, :, 0]
         return img
     else:
 	raise ValueError('In merge function, the first argument must have dimensions: HxW or HxWx3 or HxWx4')
