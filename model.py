@@ -37,6 +37,7 @@ class BicycleGAN(object):
 			#train
 			self.learning_rate = 0.0002
 			self.beta1 = 0.5
+			self.beta2 = 0.999
 			self.reconst_coeff = 10
 			self.latent_coeff = 0.5
 			self.kl_coeff = 0.01
@@ -201,7 +202,7 @@ class BicycleGAN(object):
 			self.E_solver = opt.minimize(self.loss_E, var_list = self.enc_var)
 
 		""" Testing """
-		self.fake_images = self.Generator(self.image_A, self.z, is_training=False, reuse=True)
+		#self.fake_images = self.Generator(self.image_A, self.z, is_training=False, reuse=True)
 
 		""" Summary """
 
@@ -267,7 +268,7 @@ class BicycleGAN(object):
 
 				# Saving training results for every 100 examples
 				if counter % 100 == 0:
-					samples = self.sess.run(self.fake_images, feed_dict={self.image_A: batch_imagesA, self.z: self.z_sample})
+					samples = self.sess.run(self.LR_desired_img, feed_dict={self.image_A: self.input_img1, self.z: self.z_sample})
 					tot_num_samples = min(self.sample_num, self.batch_size)
 					manifold_h = int(np.floor(np.sqrt(tot_num_samples)))
 					manifold_w = int(np.floor(np.sqrt(tot_num_samples)))
@@ -289,17 +290,18 @@ class BicycleGAN(object):
 		for (img_A, img_B) in zip(self.test_A, self.test_B):
 			self.step += 1
 			input_img = np.expand_dims(img_A, axis=0)
-			true_img = np.expand_dims(img_B, axis=0)
-			images_random = []
-			images_random.append(input_img)
-			images_random.append(true_img)
-			images_linear = []
-			images_linear.append(input_img)
-			images_linear.append(true_img)
+# 			true_img = np.expand_dims(img_B, axis=0)
+# 			images_random = []
+# 			images_random.append(input_img)
+# 			images_random.append(true_img)
+# 			images_linear = []
+# 			images_linear.append(input_img)
+# 			images_linear.append(true_img)
 
 			z = np.random.normal(size=(self.batch_size, self.Z_dim))
 			LR_desired_img = self.sess.run(self.LR_desired_img, feed_dict={self.image_A: input_img, self.z=z})
 			image = LR_desired_img[0]
+			image = np.concatenate((imgA, image), axis=1)
 			scipy.misc.imsave(os.path.join(base_dir, 'random_{}.jpg'.format(self.step)), image)
 	
 	@property
@@ -326,5 +328,5 @@ class BicycleGAN(object):
 			print(" [*] Success to read {}".format(ckpt_name))
 			return True, counter
 		else:
-			print(" [*] Failed to find a checkpoint")
+			print(" [!] Failed to find a checkpoint")
 			return False, 0
