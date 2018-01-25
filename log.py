@@ -1,10 +1,9 @@
-import logging
 import os
-
+import logging
 
 # start logging
 logging.info("Start BicycleGAN")
-logger = logging.getLogger('Bicycle-gan')
+logger = logging.getLogger('BicycleGAN')
 logger.setLevel(logging.INFO)
 
 def makedirs(path):
