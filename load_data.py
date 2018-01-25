@@ -68,4 +68,4 @@ def merge(images, size):
             img[j * h:j * h + h, i * w:i * w + w] = image[:,:,0]
         return img
     else:
-	raise ValueError('In merge(images,size) images parameter ''must have dimensions: HxW or HxWx3 or HxWx4')
+	raise ValueError('In merge function, the first argument must have dimensions: HxW or HxWx3 or HxWx4')
