@@ -173,21 +173,21 @@ class BicycleGAN(object):
 
 		self.loss_vae_gan_D = (tf.reduce_mean(tf.squared_difference(self.P_real, 0.9)) + tf.reduce_mean(tf.square(self.P_fake_encoded)))
 
-		self.loss_vae_gan_GE = tf.reduce_mean(tf.squared_difference(self.P_fake_encoded, 0.9))
-
-		self.loss_vae_GE = tf.reduce_mean(tf.abs(self.image_B - self.desired_gen_img))
-
-		self.loss_gan_D = (tf.reduce_mean(tf.squared_difference(self.P_real, 0.9)) + tf.reduce_mean(tf.square(self.P_fake)))
-
+		self.loss_lr_gan_D = (tf.reduce_mean(tf.squared_difference(self.P_real, 0.9)) + tf.reduce_mean(tf.square(self.P_fake)))
+		
+		self.loss_vae_gan_GE = tf.reduce_mean(tf.squared_difference(self.P_fake_encoded, 0.9)) #G
+		
 		self.loss_gan_G = tf.reduce_mean(tf.squared_difference(self.P_fake, 0.9))
 
-		self.loss_latent_GE = tf.reduce_mean(tf.abs(self.z - self.reconst_z))
+		self.loss_vae_GE = tf.reduce_mean(tf.abs(self.image_B - self.desired_gen_img)) #G
+
+		self.loss_latent_GE = tf.reduce_mean(tf.abs(self.z - self.reconst_z)) #G
 
 		self.loss_kl_E = 0.5 * tf.reduce_mean(-1 - self.encoded_log_sigma + self.encoded_mu ** 2 + tf.exp(self.encoded_log_sigma))
 
-		self.loss_D = self.loss_vae_gan_D + self.loss_gan_D - tf.reduce_mean(tf.squared_difference(self.P_real, 0.9))
-		self.loss_G = self.loss_vae_gan_GE + self.reconst_coeff*self.loss_vae_GE + self.loss_gan_G + self.latent_coeff*self.loss_latent_GE
-		self.loss_E = self.loss_vae_gan_GE + self.reconst_coeff*self.loss_vae_GE + self.kl_coeff*self.loss_kl_E
+		self.loss_D = self.loss_vae_gan_D + self.loss_lr_gan_D - tf.reduce_mean(tf.squared_difference(self.P_real, 0.9))
+		self.loss_G = self.loss_vae_gan_GE + self.loss_gan_G + self.reconst_coeff*self.loss_vae_GE + self.latent_coeff*self.loss_latent_GE
+		self.loss_E = self.loss_vae_gan_GE + self.reconst_coeff*self.loss_vae_GE + self.latent_coeff*self.loss_latent_GE + self.kl_coeff*self.loss_kl_E
 
 		# Optimizer
 		self.dis_var = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope="Discriminator")
