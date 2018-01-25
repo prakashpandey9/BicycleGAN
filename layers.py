@@ -3,15 +3,18 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.contrib import layers
 
+# Concatenating 2 tensors
 def concatenate(x, y):
 	X_shape = x.get_shape()
 	Y_shape = y.get_shape()
 	# concatenating on feature map axis
 	return tf.concat([x, y], axis=3)
 
+# Define activation function for the network
 def lrelu_layer(x, leak=0.2, name="lrelu"):
 	return tf.maximum(x, leak*x)
 
+# Function for fully connected layer
 def linear_layer(x, output_size, scope=None, stddev=0.2, bias_start=0.0, with_w=False):
 	shape = x.get_shape().as_list()
 
@@ -23,15 +26,17 @@ def linear_layer(x, output_size, scope=None, stddev=0.2, bias_start=0.0, with_w=
 		else:
 			return tf.matmul(x, matrix) + bias
 
+# Function for BatchNormalization layer
 def bn_layer(x, is_training, scope):
 	return layers.batch_norm(x, decay=0.9, updates_collections=None, epsilon=1e-5, scale=True, is_training=is_training, scope=scope)
 
+# Function for 2D convolutional layer
 def conv2d_layer(x, num_filters, filter_height, filter_width, stride_height, stride_width, stddev=0.2, name="conv2d"):
 	with tf.variable_scope(name):
-		w = tf.get_variable('weight', [filter_height, filter_width, x.get_shape()[-1], num_filters], initializer=tf.truncated_normal_initializer(stddev=stddev))
+		w = tf.get_variable('weight', [filter_height, filter_width, x.get_shape()[-1], num_filters], initializer=tf.truncated_normal_initializer(stddev=stddev)) #weights
 		s = [1, stride_height, stride_width, 1] # stride
 
-		if name == 'res_convd' or name == 'res_convd':
+		if name == 'res_convd1' or name == 'res_convd2':
 			conv = tf.nn.conv2d(x, w, s, padding='SAME')
 		else:
 			conv = tf.nn.conv2d(x, w, s, padding='SAME')
@@ -40,6 +45,7 @@ def conv2d_layer(x, num_filters, filter_height, filter_width, stride_height, str
 
 		return conv
 
+# Function for 2D Deconvolutional layer
 def deconv2d_layer(x, out_channel, filter_height, filter_width, stride_height, stride_width, stddev=0.2, name="deconv2d"):
 	with tf.variable_scope(name):
 		in_channel = x.get_shape()[-1]
@@ -67,6 +73,7 @@ def deconv2d_layer(x, out_channel, filter_height, filter_width, stride_height, s
 # 	    res = tf.nn.relu(x + input)
 # 	    return res
 
+# Function for Residual Blocks
 def residual_block(input, num_filters, filter_size, is_training, name="res_block"):
 	with tf.variable_scope(name):
 		in_filter = input.get_shape()[-1]
