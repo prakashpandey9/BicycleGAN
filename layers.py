@@ -41,7 +41,7 @@ def conv2d_layer(x, num_filters, filter_height, filter_width, stride_height, str
 		else:
 			conv = tf.nn.conv2d(x, w, s, padding='SAME')
 			biases = tf.get_variable('bias', [num_filters], initializer=tf.constant_initializer(0.0))
-			conv = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape()) # ?????
+			conv = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape())
 
 		return conv
 
@@ -59,19 +59,15 @@ def deconv2d_layer(x, out_channel, filter_height, filter_width, stride_height, s
 
 		return deconv
 
-# def residual_block1(input, num_filters, filter_size, is_training, name="res_block"):
-# 	with tf.variable_scope(name):
-# 	    pad = (filter_size - 1) // 2
-# 	    # pad = 2
-# 	    x = tf.pad(input, [[0,0],[pad,pad],[pad,pad],[0,0]], 'REFLECT')
-# 	    # In below lines, 'VALID' padding is to be used
-# 	    x = lrelu_layer(bn_layer(conv2d_layer(x, num_filters, filter_size, filter_size, 1, 1, name='res_convd1'), is_training=is_training, scope='ebn_1'))
-# 	    x = bn_layer(conv2d_layer(x, num_filters, filter_size, filter_size, 1, 1, name='res_convd2'), is_training=is_training, scope='ebn_2')
-# 	    #input = bn_layer(conv2d_layer(input, num_filters, filter_size, filter_size, 1, 1, name='skip'), is_training=is_training, scope='ebn_3')
-# 	    # print(input.get_shape())
-# 	    # exit()
-# 	    res = tf.nn.relu(x + input)
-# 	    return res
+# Function for Residual Blocks
+def residual_block1(input, num_filters, filter_size, is_training, name="res_block"):
+	with tf.variable_scope(name):
+	    x_shortcut = x
+	    x = lrelu_layer(bn_layer(conv2d_layer(x, num_filters, filter_size, filter_size, 2, 2, name='res_convd1'), is_training=is_training, scope='ebn_1'))
+	    x = bn_layer(conv2d_layer(x, num_filters, 1, 1, 1, 1, name='res_convd2'), is_training=is_training, scope='ebn_2')
+	    x_shortcut = bn_layer(conv2d_layer(x_shortcut, num_filters, 1, 1, 1, 1, name='skip'), is_training=is_training, scope='ebn_3')
+	    res = tf.nn.relu(x + x_shortcut)
+	    return res
 
 # Function for Residual Blocks
 def residual_block(input, num_filters, filter_size, is_training, name="res_block"):
