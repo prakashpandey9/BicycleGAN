@@ -46,7 +46,7 @@ class BicycleGAN(object):
 			self.sample_num = 64
 
 			# load data
-			self.train_A, self.train_B, self.test_A, self.test_B = load_images("/cityscapes")
+			self.train_A, self.train_B, self.test_A, self.test_B = load_images()
 
 			self.num_batches = len(self.train_A) // self.batch_size
 
@@ -299,7 +299,7 @@ class BicycleGAN(object):
 # 			images_linear.append(true_img)
 
 			z = np.random.normal(size=(self.batch_size, self.Z_dim))
-			LR_desired_img = self.sess.run(self.LR_desired_img, feed_dict={self.image_A: input_img, self.z=z})
+			LR_desired_img = self.sess.run(self.LR_desired_img, feed_dict={self.image_A: input_img, self.z: z})
 			image = LR_desired_img[0]
 			image = np.concatenate((imgA, image), axis=1)
 			scipy.misc.imsave(os.path.join(base_dir, 'random_{}.jpg'.format(self.step)), image)
