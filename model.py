@@ -3,6 +3,7 @@ from __future__ import division
 
 import os
 import time
+import glob
 import tensorflow as tf
 import numpy as np
 import scipy.misc
@@ -47,7 +48,7 @@ class BicycleGAN(object):
 
 			# load data
 			# self.train_A, self.train_B, self.test_A, self.test_B = load_images()
-			self.train_A = glob.glob("cityscapes/train/*.jpg)
+			self.train_A = glob.glob("cityscapes/train/*.jpg")
 
 			self.num_batches = len(self.train_A) // self.batch_size
 
@@ -226,7 +227,7 @@ class BicycleGAN(object):
 		# Input to graph from training data
 		self.z_sample = np.random.normal(size=(self.batch_size, self.Z_dim))
 		input_img1, batch_imagesB = load_batch_image(0)
-		input_img1 = np.expand_dims(input_img1, axis=0)
+		self.input_img1 = np.expand_dims(input_img1, axis=0)
 		#self.input_img1 = self.train_A[0:self.batch_size] # training results for a single image
 		# saving the model
 		self.saver = tf.train.Saver()
@@ -253,6 +254,8 @@ class BicycleGAN(object):
 			# get batch data
 			for idx in range(len(self.train_A)):
 				batch_imagesA, batch_imagesB = load_batch_image(idx)
+				batch_imagesA = np.expand_dims(batch_imagesA, axis=0)
+				batch_imagesB = np.expand_dims(batch_imagesB, axis=0)
 				batch_z = np.random.normal(size=(self.batch_size, self.Z_dim))
 
 				_, summary_str_d, D_loss_curr = self.sess.run([self.D_solver, self.d_loss_sum, self.loss_D], feed_dict={self.image_A: batch_imagesA, self.image_B: batch_imagesB, self.z: batch_z})
