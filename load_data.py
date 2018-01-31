@@ -40,9 +40,27 @@ def load_images():
 	
 	return train_A, train_B, test_A, test_B
 
+train_all = glob.glob("cityscapes/train/*.jpg")
+batch_size = 1
+
+def load_batch_image(idx):
+	full_image = imread(train_all[idx])
+	img_A = np.asarray(full_image[:, :full_image.shape[1]/2, :])/255.
+	img_B = np.asarray(full_image[:, full_image.shape[1]/2:, :])/255.
+	
+	return img_A, img_B
+
+test_all = glob.glob("cityscapes/val/".jpg")
+		     
+def load_test_image(idx):
+	full_image = imread(train_all[idx])
+	img_A = np.asarray(full_image[:, :full_image.shape[1]/2, :])/255.
+		     
+	return img_A
+
 def save_image(image, size, img_path):
 	return imsave(inverse_transform(image), size, img_path)
-
+	
 def imsave(image, img_size, img_path):
 	image = np.squeeze(merge(image, img_size))
 	return scipy.misc.imsave(img_path, image)
