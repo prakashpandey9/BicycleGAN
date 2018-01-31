@@ -9,7 +9,7 @@ import scipy.misc
 from layers import *
 #from tensorflow.contrib import layers
 from folder import check_folder
-from load_data import load_images, save_images, imsave
+from load_data import load_images, save_images, imsave, load_batch_image, load_test_image
 
 
 class BicycleGAN(object):
@@ -46,7 +46,8 @@ class BicycleGAN(object):
 			self.sample_num = 64
 
 			# load data
-			self.train_A, self.train_B, self.test_A, self.test_B = load_images()
+			# self.train_A, self.train_B, self.test_A, self.test_B = load_images()
+			self.train_A = glob.glob("cityscapes/train/*.jpg)
 
 			self.num_batches = len(self.train_A) // self.batch_size
 
@@ -224,7 +225,9 @@ class BicycleGAN(object):
 
 		# Input to graph from training data
 		self.z_sample = np.random.normal(size=(self.batch_size, self.Z_dim))
-		self.input_img1 = self.train_A[0:self.batch_size] # training results for a single image
+		input_img1, batch_imagesB = load_batch_image(0)
+		input_img1 = np.expand_dims(input_img1, axis=0)
+		#self.input_img1 = self.train_A[0:self.batch_size] # training results for a single image
 		# saving the model
 		self.saver = tf.train.Saver()
 
@@ -248,12 +251,9 @@ class BicycleGAN(object):
 		for epoch in range(start_epoch, self.epoch):
 
 			# get batch data
-			for idx in range(start_batch_id, self.num_batches):
-				batch_imagesA = self.train_A[idx*self.batch_size:(idx+1)*self.batch_size]
-				batch_imagesB = self.train_B[idx * self.batch_size:(idx + 1) * self.batch_size]
-				#batch_z = np.random.uniform(-1, 1, [self.batch_size, self.Z_dim]).astype(np.float32)
+			for idx in range(len(self.train_A)):
+				batch_imagesA, batch_imagesB = load_batch_image(idx)
 				batch_z = np.random.normal(size=(self.batch_size, self.Z_dim))
-
 
 				_, summary_str_d, D_loss_curr = self.sess.run([self.D_solver, self.d_loss_sum, self.loss_D], feed_dict={self.image_A: batch_imagesA, self.image_B: batch_imagesB, self.z: batch_z})
 				self.writer.add_summary(summary_str_d, counter)
@@ -278,8 +278,6 @@ class BicycleGAN(object):
 			# non-zero value is only for the first epoch after loading pre-trained model
 			# save model
 			self.save(self.checkpoint_dir, counter)
-			# show temporal results
-			# Write code for visualizing results
 
 		# save model for final step
 		self.save(self.checkpoint_dir, counter)
@@ -287,17 +285,11 @@ class BicycleGAN(object):
 	def test(self):
 		self.step = 0
 		base_dir = os.path.join('test_results')
-		for (img_A, img_B) in zip(self.test_A, self.test_B):
+		test_all = glob.glob("cityscapes/val/*.jpg")
+		for idx in range(len(test_all)):
 			self.step += 1
+			img_A = load_test_image(idx)
 			input_img = np.expand_dims(img_A, axis=0)
-# 			true_img = np.expand_dims(img_B, axis=0)
-# 			images_random = []
-# 			images_random.append(input_img)
-# 			images_random.append(true_img)
-# 			images_linear = []
-# 			images_linear.append(input_img)
-# 			images_linear.append(true_img)
-
 			z = np.random.normal(size=(self.batch_size, self.Z_dim))
 			LR_desired_img = self.sess.run(self.LR_desired_img, feed_dict={self.image_A: input_img, self.z: z})
 			image = LR_desired_img[0]
@@ -325,8 +317,8 @@ class BicycleGAN(object):
 			ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
 			self.saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
 			counter = int(next(re.finditer("(\d+)(?!.*\d)",ckpt_name)).group(0))
-			print(" [*] Success to read {}".format(ckpt_name))
+			print(" [*] Successful in reading {}".format(ckpt_name))
 			return True, counter
 		else:
-			print(" [!] Failed to find a checkpoint")
+			print(" [!] Failed to find checkpoint directory")
 			return False, 0
