@@ -50,7 +50,7 @@ def load_batch_image(idx):
 	
 	return img_A, img_B
 
-test_all = glob.glob("cityscapes/val/".jpg")
+test_all = glob.glob("cityscapes/val/*.jpg")
 		     
 def load_test_image(idx):
 	full_image = imread(train_all[idx])
