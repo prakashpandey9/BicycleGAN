@@ -58,7 +58,7 @@ def load_test_image(idx):
 		     
 	return img_A
 
-def save_image(image, size, img_path):
+def save_images(image, size, img_path):
 	return imsave(inverse_transform(image), size, img_path)
 	
 def imsave(image, img_size, img_path):
