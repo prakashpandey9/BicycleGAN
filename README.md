@@ -7,7 +7,7 @@ The idea is to learn a low-dimensional latent representation of target images us
 
 Image Source : [Toward Multimodal Image-to-Image Translation][1] Paper
 
-## Training
+## Description
 - We have 3 different networks: a) Discriminator, b) Encoder, and c) Generator
 - A cGAN-VAE (Conditional Generative Adversarial Network- Variational Autoencoder) is used to encode the ground truth output image B to latent vector z which is then used to reconstruct the output image B' i.e., B -> z -> B'
 - For inverse mapping (z->B'->z'), we use LR-GAN (Latent Regressor Generative Adversarial Networks) in which a Generator is used to generate B' from input image A and z.
@@ -22,6 +22,13 @@ Image Source : [Toward Multimodal Image-to-Image Translation][1] Paper
 - Numpy
 - Tensorflow
 - Scipy
+
+## Training / Testing
+After cloning this repository, you can train the network by running the following command.
+```shell
+$ mkdir test_results
+$ python main.py
+```
 
 ## References
 - Toward Multimodal Image-to-Image Translation[2] Paper
